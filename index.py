@@ -102,6 +102,8 @@ def select():
 
     print(gl.cur_dir)
 
+    build_tree(gl.cur_dir)
+
     set_cur_list()
     file_listbox.delete(0, tk.END)
 
@@ -113,9 +115,41 @@ def select():
     print(gl.cur_list)
 
 
+def add_to_tree(index, text):
+    if index == 0:
+        id = ""
+        iid = 1
+    else:
+        id = index
+        iid = index + 1
+    tree.insert(parent=id, index=tk.END, iid=iid, text=text, open=True)
+
+
+def clean_tree():
+    for item in tree.get_children(""):
+        tree.delete(item)
+
+
+def build_tree(path):
+    parts = path.split("\\")
+    print(len(parts))
+
+    clean_tree()
+    add_to_tree(0, parts[0])
+
+    i = 1
+    while i < len(parts):
+        add_to_tree(i, parts[i])
+        i += 1
+
+
 root = tk.Tk()
 root.title("SLIDER")
 root.geometry("700x500")
+
+ttk.Style().configure(
+    ".", font="helvetica 13", foreground="#004D40", padding=8, background="#B2DFDB"
+)
 
 list_var = tk.Variable(value=gl.cur_list)
 
@@ -134,5 +168,17 @@ open_button = ttk.Button(text="Создать окно", command=slider.run)
 open_button.pack(anchor="center", expand=1)
 
 print("width x height = %d x %d (pixels)" % (gl.monitor_width, gl.monitor_height))
+
+tree = ttk.Treeview()
+# tree.heading("#0", text="Отделы", anchor=NW)
+tree.pack()
+
+tree.insert("", tk.END, iid=1, text="Административный отдел", open=True)
+tree.insert("", tk.END, iid=2, text="IT-отдел")
+tree.insert("", tk.END, iid=3, text="Отдел продаж")
+
+tree.insert(1, index=tk.END, text="Tom")
+tree.insert(2, index=tk.END, text="Bob")
+tree.insert(2, index=tk.END, text="Sam")
 
 root.mainloop()

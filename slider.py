@@ -1,10 +1,15 @@
 from PIL import ImageTk, Image, UnidentifiedImageError
 import os
+import random
 from os import path as p
 from helpers import *
 import global_vars as gl
 import tkinter as tk
 from tkinter import ttk
+
+
+def get_random(diapozon):
+    return int(random.random() * diapozon)
 
 
 def run():
@@ -47,18 +52,22 @@ def run():
         return
 
     # global gl.index
-    gl.index = 0
+    gl.index = prev_index = 0
 
     def clock():
-        # global gl.index
+        nonlocal prev_index
 
-        gl.index += 1
+        # gl.index += 1
+        while gl.index == prev_index:
+            gl.index = get_random(count)
 
-        if gl.index == count:
-            gl.index = 0
+        prev_index = gl.index
+
+        # if gl.index == count:
+        #     gl.index = 0
 
         label.config(image=images[gl.index])
-        label.after(500, clock)
+        label.after(700, clock)
 
     window = tk.Toplevel(bg="black")
     window.title("Новое окно")
