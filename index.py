@@ -102,8 +102,6 @@ def select():
 
     print(gl.cur_dir)
 
-    build_tree(gl.cur_dir)
-
     set_cur_list()
     file_listbox.delete(0, tk.END)
 
@@ -118,10 +116,13 @@ def select():
 def add_to_tree(index, text):
     if index == 0:
         id = ""
-        iid = 1
+        iid = gl.last_dir_id
     else:
-        id = index
-        iid = index + 1
+        id = gl.last_dir_id
+        temp_index = index
+        if index > 1:
+            id = str(id) + "." + str(index - 1)
+        iid = str(gl.last_dir_id) + "." + str(temp_index)
     tree.insert(parent=id, index=tk.END, iid=iid, text=text, open=True)
 
 
@@ -134,7 +135,7 @@ def build_tree(path):
     parts = path.split("\\")
     print(len(parts))
 
-    clean_tree()
+    # clean_tree()
     add_to_tree(0, parts[0])
 
     i = 1
@@ -143,13 +144,27 @@ def build_tree(path):
         i += 1
 
 
+def add_cur_path():
+    # gl.slider_dirs.append(gl.cur_dir)
+    gl.slider_dirs[gl.last_dir_id] = gl.cur_dir
+    build_tree(gl.cur_dir)
+    gl.last_dir_id += 1
+
+
+def clean_slider_dirs():
+    # gl.slider_dirs = []
+    gl.slider_dirs.clear()
+    clean_tree()
+    gl.last_dir_id = 0
+
+
 root = tk.Tk()
 root.title("SLIDER")
-root.geometry("700x500")
+root.geometry("700x800")
 
-ttk.Style().configure(
-    ".", font="helvetica 13", foreground="#004D40", padding=8, background="#B2DFDB"
-)
+# ttk.Style().configure(
+#     ".", font="helvetica 13", foreground="#004D40", padding=8, background="#B2DFDB"
+# )
 
 list_var = tk.Variable(value=gl.cur_list)
 
@@ -164,8 +179,12 @@ ttk.Button(text="Перейти в папку", command=select).pack()
 gl.monitor_height = root.winfo_screenheight()
 gl.monitor_width = root.winfo_screenwidth()
 
-open_button = ttk.Button(text="Создать окно", command=slider.run)
-open_button.pack(anchor="center", expand=1)
+add_button = ttk.Button(text="Добавить путь", command=add_cur_path).pack(
+    anchor="ne", expand=1
+)
+clear_button = ttk.Button(text="Удалить все пути", command=clean_slider_dirs).pack(
+    anchor="nw", expand=1
+)
 
 print("width x height = %d x %d (pixels)" % (gl.monitor_width, gl.monitor_height))
 
@@ -173,12 +192,16 @@ tree = ttk.Treeview()
 # tree.heading("#0", text="Отделы", anchor=NW)
 tree.pack()
 
-tree.insert("", tk.END, iid=1, text="Административный отдел", open=True)
-tree.insert("", tk.END, iid=2, text="IT-отдел")
-tree.insert("", tk.END, iid=3, text="Отдел продаж")
+# tree.insert("", tk.END, iid=1, text="Административный отдел", open=True)
+# tree.insert("", tk.END, iid=2, text="IT-отдел")
+# tree.insert("", tk.END, iid=3, text="Отдел продаж")
 
-tree.insert(1, index=tk.END, text="Tom")
-tree.insert(2, index=tk.END, text="Bob")
-tree.insert(2, index=tk.END, text="Sam")
+# tree.insert(1, index=tk.END, text="Tom")
+# tree.insert(2, index=tk.END, text="Bob")
+# tree.insert(2, index=tk.END, text="Sam")
+
+open_button = ttk.Button(text="Запустить слайдер", command=slider.run).pack(
+    anchor="center", expand=1
+)
 
 root.mainloop()

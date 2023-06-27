@@ -17,12 +17,15 @@ def run():
         show_message("Выберите директорию")
         return
 
-    temp_items = os.listdir(gl.cur_dir)
     items = []
 
-    for item in temp_items:
-        if p.isfile(get_abspath(gl.cur_dir, item)):
-            items.append(item)
+    for id in gl.slider_dirs:
+        dir = gl.slider_dirs[id]
+        file_list = os.listdir(dir)
+        for item in file_list:
+            path = get_abspath(dir, item)
+            if p.isfile(path):
+                items.append(path)
 
     count = len(items)
     print(items)
@@ -32,7 +35,8 @@ def run():
 
         for item in items:
             try:
-                img = Image.open(gl.cur_dir + "/" + item)
+                # img = Image.open(gl.cur_dir + "/" + item)
+                img = Image.open(item)
                 h, w = img.size
                 scale = gl.monitor_height / max(h, w)
                 images.append(
