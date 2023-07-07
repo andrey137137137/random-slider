@@ -186,6 +186,21 @@ clear_button = ttk.Button(text="Удалить все пути", command=clean_s
     anchor="nw", expand=1
 )
 
+
+def convertSpeed(*args):
+    intSpeed.set(gl.speed.get())
+
+
+gl.speed = tk.IntVar(value=1000)
+intSpeed = tk.IntVar()
+
+ttk.Label(textvariable=intSpeed).pack()
+horizontalScale = ttk.Scale(
+    orient=tk.HORIZONTAL, length=200, from_=100.0, to=2000.0, variable=gl.speed
+).pack()
+
+gl.speed.trace_add("write", convertSpeed)
+
 print("width x height = %d x %d (pixels)" % (gl.monitor_width, gl.monitor_height))
 
 tree = ttk.Treeview()

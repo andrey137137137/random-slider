@@ -71,7 +71,7 @@ def run():
         #     gl.index = 0
 
         label.config(image=images[gl.index])
-        label.after(700, clock)
+        label.after(gl.speed.get(), clock)
 
     window = tk.Toplevel(bg="black")
     window.title("Новое окно")
@@ -89,7 +89,7 @@ def run():
     close_button.pack()
 
     label = ttk.Label(window, image=images[0])
-    label.pack()
+    label.pack(anchor=tk.CENTER)
 
     window.grab_set()  # захватываем пользовательский ввод
 
