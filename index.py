@@ -7,12 +7,12 @@
 #     style.theme_use(selected_theme.get())
 
 
-# ttk.Label(textvariable=selected_theme, font="Helvetica 13").pack(anchor=tk.NW)
+# ttk.Label(textvariable=selected_theme, font="Helvetica 13").grid(anchor=tk.NW)
 
 # for theme in style.theme_names():
 #     ttk.Radiobutton(
 #         text=theme, value=theme, variable=selected_theme, command=change_theme
-#     ).pack(anchor=tk.NW)
+#     ).grid(anchor=tk.NW)
 
 import os
 from os import path as p
@@ -158,54 +158,28 @@ def clean_slider_dirs():
     gl.last_dir_id = 0
 
 
+def convertSpeed(*args):
+    intSpeed.set(gl.speed.get())
+
+
 root = tk.Tk()
 root.title("SLIDER")
 root.geometry("700x800")
+
+gl.monitor_height = root.winfo_screenheight()
+gl.monitor_width = root.winfo_screenwidth()
+
+print("width x height = %d x %d (pixels)" % (gl.monitor_width, gl.monitor_height))
 
 # ttk.Style().configure(
 #     ".", font="helvetica 13", foreground="#004D40", padding=8, background="#B2DFDB"
 # )
 
-list_var = tk.Variable(value=gl.cur_list)
-
-label_value = tk.StringVar(value=gl.cur_dir)
-ttk.Label(textvariable=label_value).pack()
-
-file_listbox = tk.Listbox(listvariable=list_var)
-file_listbox.pack()
-
-ttk.Button(text="Перейти в папку", command=select).pack()
-
-gl.monitor_height = root.winfo_screenheight()
-gl.monitor_width = root.winfo_screenwidth()
-
-add_button = ttk.Button(text="Добавить путь", command=add_cur_path).pack(
-    anchor="ne", expand=1
-)
-clear_button = ttk.Button(text="Удалить все пути", command=clean_slider_dirs).pack(
-    anchor="nw", expand=1
-)
-
-
-def convertSpeed(*args):
-    intSpeed.set(gl.speed.get())
-
-
-gl.speed = tk.IntVar(value=1000)
-intSpeed = tk.IntVar()
-
-ttk.Label(textvariable=intSpeed).pack()
-horizontalScale = ttk.Scale(
-    orient=tk.HORIZONTAL, length=200, from_=100.0, to=2000.0, variable=gl.speed
-).pack()
-
-gl.speed.trace_add("write", convertSpeed)
-
-print("width x height = %d x %d (pixels)" % (gl.monitor_width, gl.monitor_height))
-
+row = 0
+column = 0
 tree = ttk.Treeview()
+tree.grid(row=row, column=column)
 # tree.heading("#0", text="Отделы", anchor=NW)
-tree.pack()
 
 # tree.insert("", tk.END, iid=1, text="Административный отдел", open=True)
 # tree.insert("", tk.END, iid=2, text="IT-отдел")
@@ -215,8 +189,45 @@ tree.pack()
 # tree.insert(2, index=tk.END, text="Bob")
 # tree.insert(2, index=tk.END, text="Sam")
 
-open_button = ttk.Button(text="Запустить слайдер", command=slider.run).pack(
-    anchor="center", expand=1
+row = 1
+ttk.Button(text="Удалить все пути", command=clean_slider_dirs).grid(
+    row=row, column=column
 )
+
+
+row = 0
+column = 1
+label_value = tk.StringVar(value=gl.cur_dir)
+ttk.Label(textvariable=label_value).grid(row=row, column=column)
+
+row = 1
+list_var = tk.Variable(value=gl.cur_list)
+file_listbox = tk.Listbox(listvariable=list_var)
+file_listbox.grid(row=row, column=column)
+
+row = 2
+ttk.Button(text="Перейти в папку", command=select).grid(row=row, column=column)
+
+
+row = 0
+column = 2
+start = 1000
+gl.speed = tk.IntVar(value=start)
+gl.speed.trace_add("write", convertSpeed)
+intSpeed = tk.IntVar()
+
+row = 1
+ttk.Label(text=str(start), textvariable=intSpeed).grid(row=row, column=column)
+
+row = 2
+horizontalScale = ttk.Scale(
+    orient=tk.HORIZONTAL, length=200, from_=100.0, to=2000.0, variable=gl.speed
+).grid(row=row, column=column)
+
+row = 3
+ttk.Button(text="Добавить путь", command=add_cur_path).grid(row=row, column=column)
+
+row = 4
+ttk.Button(text="Запустить слайдер", command=slider.run).grid(row=row, column=column)
 
 root.mainloop()
