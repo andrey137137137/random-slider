@@ -1,11 +1,9 @@
-from PIL import ImageTk, Image, UnidentifiedImageError
-import os
 import random
-from os import path as p
-from helpers import *
-import global_vars as gl
 import tkinter as tk
 from tkinter import ttk
+
+import global_vars as gl
+from helpers import *
 
 
 def get_random(diapozon):
@@ -13,49 +11,6 @@ def get_random(diapozon):
 
 
 def run():
-    if gl.cur_dir == "":
-        show_message("Выберите директорию")
-        return
-
-    items = []
-
-    for id in gl.slider_dirs:
-        dir = gl.slider_dirs[id]
-        file_list = os.listdir(dir)
-        for item in file_list:
-            path = get_abspath(dir, item)
-            if p.isfile(path):
-                items.append(path)
-
-    count = len(items)
-    print(items)
-
-    if count:
-        images = []
-
-        for item in items:
-            try:
-                # img = Image.open(gl.cur_dir + "/" + item)
-                img = Image.open(item)
-                h, w = img.size
-                scale = gl.monitor_height / max(h, w)
-                images.append(
-                    ImageTk.PhotoImage(
-                        img.resize(
-                            (getSize(h, scale), getSize(w, scale)), Image.LANCZOS
-                        )
-                    )
-                )
-            except UnidentifiedImageError:
-                continue
-
-        count = len(images)
-
-    if count == 0:
-        show_message("В этой папке нет изображений")
-        return
-
-    # global gl.index
     gl.index = prev_index = 0
 
     def clock():
@@ -63,14 +18,14 @@ def run():
 
         # gl.index += 1
         while gl.index == prev_index:
-            gl.index = get_random(count)
+            gl.index = get_random(gl.count)
 
         prev_index = gl.index
 
         # if gl.index == count:
         #     gl.index = 0
 
-        label.config(image=images[gl.index])
+        label.config(image=gl.images[gl.index])
         label.after(gl.speed.get(), clock)
 
     window = tk.Toplevel(bg="black")
@@ -88,8 +43,8 @@ def run():
     # close_button.pack(anchor="center", expand=1)
     close_button.pack()
 
-    label = ttk.Label(window, image=images[0])
-    label.pack(anchor=tk.CENTER)
+    label = ttk.Label(window, image=gl.images[0])
+    label.pack(anchor=tk.NE)
 
     window.grab_set()  # захватываем пользовательский ввод
 

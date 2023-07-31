@@ -15,12 +15,15 @@
 #     ).grid(anchor=tk.NW)
 
 import os
-from os import path as p
 import tkinter as tk
+from os import path as p
 from tkinter import ttk
-from helpers import *
+
+from PIL import Image, ImageTk, UnidentifiedImageError
+
 import global_vars as gl
 import slider
+from helpers import *
 
 
 def get_file_selected():
@@ -50,14 +53,11 @@ def get_path(root, dir):
 
 
 def set_label_value(path):
-    # global label_value, gl.cur_dir
     gl.cur_dir = path
     label_value.set(path)
 
 
 def set_cur_dir(dir):
-    # global gl.cur_dir, gl.prev_cur_dir
-
     path = get_path(gl.cur_dir, dir)
     print(path)
 
@@ -70,8 +70,6 @@ def set_cur_dir(dir):
 
 
 def set_cur_list():
-    # global gl.cur_dir, gl.cur_list, gl.prev_cur_list
-
     if gl.cur_dir == "":
         gl.cur_list = gl.drives
     else:
@@ -152,15 +150,72 @@ def add_cur_path():
 
 
 def clean_slider_dirs():
+    global pathes
+
     # gl.slider_dirs = []
     gl.slider_dirs.clear()
     clean_tree()
     gl.last_dir_id = 0
+    gl.images = []
+    gl.count = 0
+    pathes = {}
 
 
 def convertSpeed(*args):
     intSpeed.set(gl.speed.get())
 
+
+def run():
+    if gl.count == 0:
+        if gl.cur_dir == "":
+            show_message("Выберите директорию")
+            return
+
+        items = []
+
+        for id in gl.slider_dirs:
+            pathes[id] = 0
+            dir = gl.slider_dirs[id]
+            file_list = os.listdir(dir)
+            for item in file_list:
+                path = get_abspath(dir, item)
+                if p.isfile(path):
+                    items.append(path)
+                    pathes[id] = pathes[id] + 1
+
+        count = len(items)
+        print(items)
+        print(pathes)
+
+        if count:
+            gl.images = []
+
+            for item in items:
+                try:
+                    # img = Image.open(gl.cur_dir + "/" + item)
+                    img = Image.open(item)
+                    h, w = img.size
+                    scale = gl.monitor_height / max(h, w)
+                    gl.images.append(
+                        ImageTk.PhotoImage(
+                            img.resize(
+                                (getSize(h, scale), getSize(w, scale)), Image.LANCZOS
+                            )
+                        )
+                    )
+                except UnidentifiedImageError:
+                    continue
+
+            gl.count = len(gl.images)
+
+        if gl.count == 0:
+            show_message("В этой папке нет изображений")
+            return
+
+    slider.run()
+
+
+pathes = {}
 
 root = tk.Tk()
 root.title("SLIDER")
@@ -178,7 +233,7 @@ print("width x height = %d x %d (pixels)" % (gl.monitor_width, gl.monitor_height
 row = 0
 column = 0
 tree = ttk.Treeview()
-tree.grid(row=row, column=column)
+tree.grid(row=row, column=column, sticky=tk.NSEW)
 # tree.heading("#0", text="Отделы", anchor=NW)
 
 # tree.insert("", tk.END, iid=1, text="Административный отдел", open=True)
@@ -189,9 +244,9 @@ tree.grid(row=row, column=column)
 # tree.insert(2, index=tk.END, text="Bob")
 # tree.insert(2, index=tk.END, text="Sam")
 
-row = 1
+row = 2
 ttk.Button(text="Удалить все пути", command=clean_slider_dirs).grid(
-    row=row, column=column
+    row=row, column=column, sticky=tk.NSEW
 )
 
 
@@ -228,6 +283,12 @@ row = 3
 ttk.Button(text="Добавить путь", command=add_cur_path).grid(row=row, column=column)
 
 row = 4
-ttk.Button(text="Запустить слайдер", command=slider.run).grid(row=row, column=column)
+ttk.Button(text="Запустить слайдер", command=run).grid(row=row, column=column)
+
+# canvas = tk.Canvas(
+#     window, bg="white", width=gl.monitor_width, height=gl.monitor_height
+# )
+# canvas.pack(anchor=tk.CENTER, expand=1)
+# canvas.create_image(0, 0, anchor=tk.NW, image=images[0])
 
 root.mainloop()
